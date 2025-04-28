@@ -1,0 +1,13 @@
+[Unit]
+Description=Grafana Server
+After=network.target
+
+[Service]
+User=prometheus
+Group=prometheus
+WorkingDirectory=/opt/grafana
+ExecStart=/opt/grafana/bin/grafana-server --config=/opt/grafana/conf/defaults.ini --homepath=/opt/grafana
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
