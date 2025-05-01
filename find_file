@@ -1,0 +1,15 @@
+Метрики process exptrter
+/var/lib/node_exporter/textfile_collector
+
+ssl ключи blackbox
+etc/ssl/blackbox   
+
+
+/etc/systemd/system
+
+blackbox_exporter.service    
+grafana-server.service  
+node_exporter.service  
+process-exporter.service        
+prometheus.service 
+pushgateway.service
