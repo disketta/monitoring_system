@@ -1,0 +1,14 @@
+[Unit]
+Description=Process Exporter
+After=network.target
+
+[Service]
+Type=simple
+User=prometheus
+Group=prometheus
+ExecStart=/opt/process-exporter/process-exporter --config.path=/opt/process-exporter/process-exporter.yml
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
