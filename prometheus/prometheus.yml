@@ -2,7 +2,9 @@
 global:
   scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
   evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
-  # scrape_timeout is set to the global default (10s).
+  external_labels:
+    dc: central
+ # scrape_timeout is set to the global default (10s).
 
 # Alertmanager configuration
 alerting:
@@ -43,3 +45,65 @@ scrape_configs:
     honor_labels: true
     static_configs:
       - targets: ['localhost:9091']
+
+
+  - job_name: 'process-exporter'
+    static_configs:
+      - targets: ['localhost:9256']
+
+  - job_name: 'blackbox_http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]  # Используем модуль http_2xx из blackbox.yml
+    static_configs:
+      - targets:
+          - https://facebook.com
+          - https://vk.com
+          - https://twitter.com
+          - https://yandex.ru
+          - https://github.com
+          - https://bbc.com
+          - https://wikipedia.org
+          - https://x.com
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: localhost:9115  # Адрес Blackbox Exporter
+
+  - job_name: 'blackbox_tls'
+    metrics_path: /probe
+    params:
+      module: [tls_cert_expiry]  # Используем модуль tls_cert_expiry
+    static_configs:
+      - targets:
+          - example.com:443
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: localhost:9115
+
+
+
+  - job_name: 'federate-dc1'
+    honor_labels: true
+    metrics_path: /federate
+    params:
+      match[]:
+        - '{__name__=~"node_cpu_.*"}'
+    static_configs:
+      - targets: ['192.168.0.20:9090']
+
+  - job_name: 'federate-dc2'
+    honor_labels: true
+    metrics_path: /federate
+    params:
+      match[]:
+        - '{__name__=~"node_cpu_.*"}'
+    static_configs:
+      - targets: ['192.168.0.42:9090']
